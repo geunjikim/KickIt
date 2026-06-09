@@ -326,12 +326,12 @@ function initGame(){
   const bMat=new CANNON.Material('b');
   gameWorld.addContactMaterial(new CANNON.ContactMaterial(bMat,bMat,{restitution:0.18,friction:0.75,contactEquationStiffness:1e7,contactEquationRelaxation:4}));
 
-  gameScene.add(new THREE.AmbientLight(0xfff4cc,1.4));
-  const dl=new THREE.DirectionalLight(0xfffbe6,3.5);
+  gameScene.add(new THREE.AmbientLight(0xffffff, 0.3));
+  const dl=new THREE.DirectionalLight(0xffffff, 0.3);
   dl.position.set(6,16,8);dl.castShadow=true;dl.shadow.mapSize.set(2048,2048);
   dl.shadow.camera.near=1;dl.shadow.camera.far=200;gameScene.add(dl);
-  const rl=new THREE.DirectionalLight(0xFFCC44,1.6);rl.position.set(-6,3,-6);gameScene.add(rl);
-  const tl=new THREE.DirectionalLight(0xffffff,2.0);tl.position.set(0,20,2);gameScene.add(tl);
+  const rl=new THREE.DirectionalLight(0xffffff,0.2);rl.position.set(-6,3,-6);gameScene.add(rl);
+  const tl=new THREE.DirectionalLight(0xffffff,0.2);tl.position.set(0,20,2);gameScene.add(tl);
 
   const R=0.65;
   const sGeo=new THREE.SphereGeometry(R,64,64);
@@ -440,7 +440,7 @@ function initGame(){
   for(let i=0;i<MAX_PLAT;i++){
     const w=11+Math.random()*3,h=0.4,d=7+Math.random()*2;
     const geo=new THREE.BoxGeometry(w,h,d);
-    const mat=new THREE.MeshBasicMaterial({map:pTexs[i%3]});
+    const mat=new THREE.MeshStandardMaterial({map:pTexs[i%3],roughness:1.0,metalness:0,envMapIntensity:0});
     const mesh=new THREE.Mesh(geo,mat);mesh.receiveShadow=true;mesh.castShadow=true;
     mesh.add(new THREE.LineSegments(new THREE.EdgesGeometry(geo),new THREE.LineBasicMaterial({color:0xFFD700,transparent:true,opacity:0.8})));
     mesh.rotation.x=TILT;
