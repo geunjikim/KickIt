@@ -440,7 +440,7 @@ function initGame(){
   for(let i=0;i<MAX_PLAT;i++){
     const w=11+Math.random()*3,h=0.4,d=7+Math.random()*2;
     const geo=new THREE.BoxGeometry(w,h,d);
-    const mat=new THREE.MeshStandardMaterial({map:pTexs[i%3],roughness:0.5,metalness:0.15});
+    const mat=new THREE.MeshBasicMaterial({map:pTexs[i%3]});
     const mesh=new THREE.Mesh(geo,mat);mesh.receiveShadow=true;mesh.castShadow=true;
     mesh.add(new THREE.LineSegments(new THREE.EdgesGeometry(geo),new THREE.LineBasicMaterial({color:0xFFD700,transparent:true,opacity:0.8})));
     mesh.rotation.x=TILT;
