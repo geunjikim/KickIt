@@ -695,22 +695,24 @@ function buildKeycaps(){
 ════════════════════════════════════ */
 function startAsmr(){
   showUnlockBanner();
-  drawBlob(0,0);
-  setSqSize();
-  buildKeycaps();
+  // 약간 delay 줘서 DOM이 완전히 표시된 후 실행
+  setTimeout(()=>{
+    setSqSize();
+    drawBlob(0,0);
+    buildKeycaps();
 
-  // squishy events
-  const sq=document.getElementById('sq');
-  sq.addEventListener('pointerdown',sqDown);
-  sq.addEventListener('pointermove',sqMove);
-  sq.addEventListener('pointermove',sqMove);
-  sq.addEventListener('pointerup',sqUp);
+    const sq=document.getElementById('sq');
+    sq.addEventListener('pointerdown',sqDown);
+    sq.addEventListener('pointermove',sqMove);
+    sq.addEventListener('pointerup',sqUp);
 
-  // apple spawn loop
-  spawnApple();
-  appleSpawnTimer=setInterval(()=>{
-    if(document.getElementById('asmr-screen').style.display!=='none') spawnApple();
-  },600+Math.random()*800);
+    // apple spawn
+    spawnApple();
+    clearInterval(appleSpawnTimer);
+    appleSpawnTimer=setInterval(()=>{
+      if(document.getElementById('asmr-screen').style.display!=='none') spawnApple();
+    }, 600+Math.random()*800);
+  }, 80);
 }
 
 function stopAsmr(){
