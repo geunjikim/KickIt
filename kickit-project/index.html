@@ -315,7 +315,7 @@ function doTransform(){
   const amb=setInterval(()=>{if(t>90){clearInterval(amb);return;}burst(cx+(Math.random()-.5)*170,cy+(Math.random()-.5)*110,['gold','pink'],9);},75);
   function step(){
     t++;pfill.style.width=(Math.min(t/90,1)*100)+'%';
-    if(t===15){fov.style.background='rgba(255,180,220,0.2)';fov.style.opacity='1';setTimeout(()=>fov.style.opacity='0',400);}
+    if(t===15){fov.style.background='rgba(180,240,100,0.15)';fov.style.opacity='1';setTimeout(()=>fov.style.opacity='0',400);}
     if(t===35){burst(cx,cy,['rainbow','sparkle'],55);burst(cx-90,cy+20,['pink'],22);burst(cx+90,cy+20,['pink'],22);}
     if(t===52){befL.style.filter=befR.style.filter='brightness(4) saturate(0) sepia(0.3) hue-rotate(280deg)';befL.style.transition=befR.style.transition='filter 0.4s';burst(cx,cy,['gold','star'],65);}
     if(t===68){
@@ -325,7 +325,7 @@ function doTransform(){
       aftR.style.filter='drop-shadow(0 0 8px rgba(180,240,100,0.5)) drop-shadow(0 0 16px rgba(180,240,100,0.25)) brightness(1.05)';
       bigBurst(cx,cy);
     }
-    if(t===72){fov.style.background='rgba(255,220,255,0.35)';fov.style.opacity='1';setTimeout(()=>fov.style.opacity='0',350);}
+    if(t===72){fov.style.background='rgba(180,240,100,0.2)';fov.style.opacity='1';setTimeout(()=>fov.style.opacity='0',350);}
     if(t>=90){
       pfill.style.width='100%';      plbl.textContent='✦ GODDESS POWER ✦';plbl.style.color='rgba(180,240,100,0.95)';
       bicon.textContent='↩';bhint.textContent='뒤로가기';bhintTop.textContent='변신 완료!';
