@@ -245,8 +245,8 @@ class Pt{
       gold:['#b4f040','#dcff90','#ccff66','#aaff44'],
       pink:['#88ffaa','#aaffcc','#66ffbb','#ddffee'],
       rainbow:['#44ff66','#88ff44','#ccff44','#44ccff','#44ffaa','#aaff44'],
-      sparkle:['#ffffff','#ccffaa','#b4f040','#aaffcc'],
-      star:['#b4f040','#dcff90','#ffffff']
+      sparkle:['#ccffaa','#b4f040','#aaffcc','#eeffcc'],
+      star:['#b4f040','#dcff90','#ccffaa']
     };
     const pal=P[type]||P.gold;this.col=pal[Math.floor(Math.random()*pal.length)];
     this.shape=Math.random()<0.3?'star':Math.random()<0.4?'heart':'circle';
@@ -316,8 +316,8 @@ function doTransform(){
   function step(){
     t++;pfill.style.width=(Math.min(t/90,1)*100)+'%';
     if(t===15){fov.style.background='rgba(180,240,100,0.15)';fov.style.opacity='1';setTimeout(()=>fov.style.opacity='0',400);}
-    if(t===35){burst(cx,cy,['rainbow','sparkle'],55);burst(cx-90,cy+20,['pink'],22);burst(cx+90,cy+20,['pink'],22);}
-    if(t===52){befL.style.filter=befR.style.filter='brightness(4) saturate(0) sepia(0.3) hue-rotate(280deg)';befL.style.transition=befR.style.transition='filter 0.4s';burst(cx,cy,['gold','star'],65);}
+    if(t===35){burst(cx,cy,['rainbow','sparkle'],55);burst(cx-90,cy+20,['sparkle'],22);burst(cx+90,cy+20,['sparkle'],22);}
+    if(t===52){befL.style.filter=befR.style.filter='brightness(4) saturate(0) sepia(0.3) hue-rotate(80deg)';befL.style.transition=befR.style.transition='filter 0.4s';burst(cx,cy,['gold','star'],65);}
     if(t===68){
       befL.classList.add('hidden');befR.classList.add('hidden');
       aftL.classList.add('visible');aftR.classList.add('visible');
