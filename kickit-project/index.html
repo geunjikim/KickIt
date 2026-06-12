@@ -89,8 +89,8 @@ body{background:#1a2e10;min-height:100vh;min-height:100dvh;display:flex;align-it
 .key-space{width:168px!important;}.key-space-side{width:168px!important;}
 
 /* back button */
-#asmr-back{position:fixed;top:14px;left:14px;z-index:200;padding:10px 16px;background:#a0a8b0;border:3px solid #1a1a1a;box-shadow:3px 3px 0 #1a1a1a;color:#1a1a1a;font-family:'Press Start 2P',monospace;font-size:8px;cursor:pointer;-webkit-tap-highlight-color:transparent;}
-#asmr-back:active{transform:translate(3px,3px);box-shadow:0 0 0 #1a1a1a;}
+#asmr-back{position:fixed;top:14px;left:14px;z-index:200;padding:8px 14px;background:rgba(0,0,0,0.15);border:1px solid rgba(0,0,0,0.2);color:rgba(0,0,0,0.35);font-family:'Press Start 2P',monospace;font-size:7px;cursor:pointer;-webkit-tap-highlight-color:transparent;border-radius:4px;}
+#asmr-back:active{opacity:0.5;}
 
 /* pixel particles */
 .pp{position:absolute;width:6px;height:6px;pointer-events:none;image-rendering:pixelated;animation:pa 0.4s steps(4) forwards;}
@@ -273,6 +273,7 @@ function kickIt(){
     document.getElementById('transform-screen').style.display='none';
     document.getElementById('asmr-screen').style.display='block';
     if(bgRaf){cancelAnimationFrame(bgRaf);bgRaf=null;}
+    blockP=true; tParts=[];
     startAsmr();
   },220);
 }
@@ -428,29 +429,36 @@ function spawnPP(cx,cy,zone,color,count=8){
 }
 
 function makePixelAppleSVG(){
-  appleId++;
-  return `<svg class="apple-svg" viewBox="0 0 16 18" xmlns="http://www.w3.org/2000/svg" style="image-rendering:pixelated">
-    <rect x="7" y="0" width="2" height="2" fill="#3a6010"/>
-    <rect x="9" y="0" width="3" height="1" fill="#5aaa20"/>
-    <rect x="9" y="1" width="2" height="1" fill="#5aaa20"/>
-    <rect x="3" y="2" width="10" height="1" fill="#5aaa20"/>
-    <rect x="2" y="3" width="12" height="1" fill="#6abb28"/>
-    <rect x="1" y="4" width="14" height="1" fill="#7dc940"/>
-    <rect x="1" y="5" width="14" height="1" fill="#88dd48"/>
-    <rect x="1" y="6" width="14" height="1" fill="#90e850"/>
-    <rect x="1" y="7" width="14" height="1" fill="#98f058"/>
-    <rect x="1" y="8" width="14" height="1" fill="#90e850"/>
-    <rect x="1" y="9" width="14" height="1" fill="#88dd48"/>
-    <rect x="1" y="10" width="14" height="1" fill="#7dc940"/>
-    <rect x="1" y="11" width="14" height="1" fill="#6abb28"/>
-    <rect x="2" y="12" width="12" height="1" fill="#5aaa20"/>
-    <rect x="3" y="13" width="10" height="1" fill="#4a9018"/>
-    <rect x="5" y="14" width="6" height="1" fill="#3a7010"/>
-    <rect x="3" y="4" width="3" height="2" fill="#ccffaa" opacity="0.8"/>
-    <rect x="3" y="6" width="1" height="1" fill="#ccffaa" opacity="0.5"/>
-    <rect x="7" y="2" width="2" height="1" fill="#4a9018"/>
-    <rect x="1" y="4" width="1" height="8" fill="#1a1a1a" opacity="0.25"/>
-    <rect x="14" y="4" width="1" height="8" fill="#1a1a1a" opacity="0.25"/>
+  // 말랑이와 동일한 사과 모양 (작은 버전)
+  return `<svg class="apple-svg" viewBox="0 0 60 68" xmlns="http://www.w3.org/2000/svg">
+    <!-- stem -->
+    <line x1="30" y1="14" x2="31" y2="3" stroke="#3d6e18" stroke-width="3" stroke-linecap="round"/>
+    <!-- leaf -->
+    <path d="M30,12 C26,4 14,1 13,7 C12,13 24,13 30,12 Z" fill="#2e7d1a" stroke="#1a1a1a" stroke-width="1.5"/>
+    <!-- apple body — 사과 모양 path -->
+    <path d="
+      M30,14
+      C36,14 44,17 47,23
+      C51,30 50,40 46,47
+      C43,52 38,56 30,56
+      C22,56 17,52 14,47
+      C10,40 9,30 13,23
+      C16,17 24,14 30,14 Z
+    " fill="#7dc940" stroke="#1a1a1a" stroke-width="2.5"/>
+    <!-- inner -->
+    <path d="
+      M30,20
+      C34,20 39,22 41,27
+      C44,33 43,40 40,45
+      C38,49 34,52 30,52
+      C26,52 22,49 20,45
+      C17,40 16,33 19,27
+      C21,22 26,20 30,20 Z
+    " fill="#a0e060" opacity="0.4"/>
+    <!-- top dent -->
+    <path d="M27,14 C28,11 32,11 33,14" fill="#5aaa20" stroke="none"/>
+    <!-- highlight -->
+    <ellipse cx="22" cy="28" rx="5" ry="3.5" fill="white" opacity="0.55" transform="rotate(-20,22,28)"/>
   </svg>`;
 }
 
@@ -513,16 +521,16 @@ function blobPath(dx,dy,cx,cy,r){
     const along=ux*Math.cos(ang)+uy*Math.sin(ang),perp=-ux*Math.sin(ang)+uy*Math.cos(ang);
     const ef=along>0?stretch:(1+(stretch-1)*0.08);
     pts.push({
-      x:Math.round((cx+(along*ef*Math.cos(ang)-perp*squeeze*Math.sin(ang))*appleR)/2)*2,
-      y:Math.round((cy+(along*ef*Math.sin(ang)+perp*squeeze*Math.cos(ang))*appleR)/2)*2
+      x:(cx+(along*ef*Math.cos(ang)-perp*squeeze*Math.sin(ang))*appleR),
+      y:(cy+(along*ef*Math.sin(ang)+perp*squeeze*Math.cos(ang))*appleR)
     });
   }
-  let d=`M${pts[0].x} ${pts[0].y}`;
+  let d=`M${pts[0].x.toFixed(2)} ${pts[0].y.toFixed(2)}`;
   for(let i=0;i<N;i++){
     const p0=pts[(i-1+N)%N],p1=pts[i],p2=pts[(i+1)%N],p3=pts[(i+2)%N];
     const c1x=p1.x+(p2.x-p0.x)/6,c1y=p1.y+(p2.y-p0.y)/6;
     const c2x=p2.x-(p3.x-p1.x)/6,c2y=p2.y-(p3.y-p1.y)/6;
-    d+=` C${c1x.toFixed(1)} ${c1y.toFixed(1)},${c2x.toFixed(1)} ${c2y.toFixed(1)},${p2.x} ${p2.y}`;
+    d+=` C${c1x.toFixed(2)} ${c1y.toFixed(2)},${c2x.toFixed(2)} ${c2y.toFixed(2)},${p2.x.toFixed(2)} ${p2.y.toFixed(2)}`;
   }
   return d+'Z';
 }
