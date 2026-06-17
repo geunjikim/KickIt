@@ -92,6 +92,17 @@ body{background:#1a2e10;min-height:100vh;min-height:100dvh;display:flex;align-it
 .retry-btn{font-family:'Press Start 2P',monospace;font-size:9px;letter-spacing:0.12em;color:#0e1a0a;background:linear-gradient(135deg,#b4f040,#dcff90);border:none;padding:12px 24px;cursor:pointer;-webkit-tap-highlight-color:transparent;border-radius:4px;}
 .retry-btn:active{transform:scale(0.95);}
 
+/* KICK IT 진입 인트로 카드 */
+.kickit-intro{position:absolute;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;pointer-events:none;background:rgba(6,12,5,0);opacity:0;}
+.kickit-intro.show{animation:kiBgFlash 1.3s ease forwards;}
+.kickit-intro .ki-en{position:absolute;font-family:'Press Start 2P',monospace;font-weight:700;font-size:11vw;color:transparent;-webkit-text-stroke:1.5px rgba(180,240,100,0.55);letter-spacing:0.06em;white-space:nowrap;opacity:0;}
+.kickit-intro .ki-kr{position:relative;font-family:'Press Start 2P',monospace;font-size:18px;color:#dcff90;letter-spacing:0.1em;text-shadow:0 0 18px rgba(180,240,100,0.95),0 2px 0 #0e1a0a;opacity:0;white-space:nowrap;}
+.kickit-intro.show .ki-en{animation:kiEnFlash 1.3s ease forwards;}
+.kickit-intro.show .ki-kr{animation:kiKrPunch 1.3s ease forwards;}
+@keyframes kiBgFlash{0%{opacity:0;background:rgba(6,12,5,0);}6%{opacity:1;background:rgba(6,12,5,0.55);}80%{opacity:1;background:rgba(6,12,5,0.55);}100%{opacity:0;background:rgba(6,12,5,0);}}
+@keyframes kiEnFlash{0%{opacity:0;transform:scale(1.5);}14%{opacity:0.55;transform:scale(1);}78%{opacity:0.55;}100%{opacity:0;}}
+@keyframes kiKrPunch{0%{opacity:0;transform:scale(0.5) rotate(-3deg);}18%{opacity:1;transform:scale(1.12) rotate(1deg);}28%{transform:scale(1) rotate(0);}76%{opacity:1;}100%{opacity:0;transform:scale(0.92);}}
+
 /* back button */
 #asmr-back{position:fixed;top:14px;left:14px;z-index:200;padding:8px 14px;background:rgba(180,240,100,0.08);border:1px solid rgba(180,240,100,0.35);color:rgba(220,255,144,0.85);font-family:'Press Start 2P',monospace;font-size:7px;cursor:pointer;-webkit-tap-highlight-color:transparent;border-radius:4px;}
 #asmr-back:active{opacity:0.5;}
@@ -196,6 +207,10 @@ body{background:#1a2e10;min-height:100vh;min-height:100dvh;display:flex;align-it
       <h2>GAME OVER</h2>
       <p id="overlayStat"></p>
       <button class="retry-btn" onclick="restartBattle()">다시하기</button>
+    </div>
+    <div class="kickit-intro" id="kickitIntro">
+      <span class="ki-en">KICK IT</span>
+      <span class="ki-kr">KICK IT!</span>
     </div>
   </div>
 </div>
@@ -842,6 +857,8 @@ function restartBattle(){
 
 /* ════════════ BATTLE START/STOP ════════════ */
 function startBattle(){
+  const intro=document.getElementById('kickitIntro');
+  intro.classList.remove('show');void intro.offsetWidth;intro.classList.add('show');
   const banner=document.getElementById('unlock-banner');
   banner.style.display='flex';
   setTimeout(()=>{banner.style.top='0';},50);
@@ -868,7 +885,7 @@ function startBattle(){
     battleRunning=true;battleLoop.last=performance.now();
     startTurn('hyun');
     battleRaf=requestAnimationFrame(battleLoop);
-  },100);
+  },1300);
 }
 function stopBattle(){
   battleRunning=false;cancelAnimationFrame(battleRaf);
