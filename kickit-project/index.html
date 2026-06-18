@@ -204,7 +204,7 @@ body{background:#1a2e10;min-height:100vh;min-height:100dvh;display:flex;align-it
     </div>
     <div class="turn-banner" id="turnBanner"></div>
     <div class="battle-overlay" id="battleOverlay">
-      <h2>GAME OVER</h2>
+      <h2 id="overlayTitle">GAME OVER</h2>
       <p id="overlayStat"></p>
       <button class="retry-btn" onclick="restartBattle()">다시하기</button>
     </div>
@@ -535,6 +535,8 @@ let player={x:150,y:105,r:9};
 let bullets=[];
 let battleRaf=null,battleRunning=false;
 let hp=5,maxHp=5,round=1,elapsed=0,invuln=0;
+let finalLoops=0;
+const FINAL_STAGE_LOOPS=2; /* final stage를 몇 번 더 버티면 클리어인지 */
 let turn='hyun',phase='banner',phaseUntil=0,nextSpawnA=0,nextSpawnP=0;
 /* 난이도 6단계: stage1~5는 교대공격, stage6(final)은 둘 다 동시 공격 — 속도/크기/빈도가 단계마다 커짐 */
 const STAGE_CONFIG=[null,
@@ -651,7 +653,9 @@ function nextPhase(now){
       round++;roundNumEl.textContent=getStage();
       startTurn(round>=6?'dual':'hyun');
     } else {
-      round++;roundNumEl.textContent=getStage();startTurn('dual');
+      finalLoops++;
+      if(finalLoops>=FINAL_STAGE_LOOPS){gameClear();}
+      else{round++;roundNumEl.textContent=getStage();startTurn('dual');}
     }
   }
 }
@@ -840,17 +844,28 @@ function battleLoop(now){
   battleRaf=requestAnimationFrame(battleLoop);
 }
 
+const overlayTitle=document.getElementById('overlayTitle');
+
 function gameOver(){
   battleRunning=false;cancelAnimationFrame(battleRaf);
+  overlayTitle.textContent='GAME OVER';overlayTitle.style.color='';
   overlayStat.textContent=`STAGE ${getStage()} · ${Math.floor(elapsed)}초 생존`;
   battleOverlay.classList.add('show');
 }
+function gameClear(){
+  battleRunning=false;cancelAnimationFrame(battleRaf);
+  overlayTitle.textContent='CLEAR!';overlayTitle.style.color='#ffe066';
+  overlayStat.textContent=`FINAL STAGE 통과! · ${Math.floor(elapsed)}초 생존`;
+  battleOverlay.classList.add('show');
+  fadeBgTo(0,1200);
+}
 function restartBattle(){
   battleOverlay.classList.remove('show');
-  hp=maxHp;round=1;elapsed=0;bullets=[];invuln=0;
+  hp=maxHp;round=1;elapsed=0;bullets=[];invuln=0;finalLoops=0;
   roundNumEl.textContent=1;timeNumEl.textContent=0;renderHp();
   player.x=BW/2;player.y=BH/2;
   battleRunning=true;battleLoop.last=performance.now();
+  playBgMusic();
   startTurn('hyun');
   battleRaf=requestAnimationFrame(battleLoop);
 }
@@ -875,7 +890,7 @@ function startBattle(){
   window.addEventListener('keydown',onBKeyDown);
   window.addEventListener('keyup',onBKeyUp);
   window.addEventListener('resize',fitCanvas);
-  hp=maxHp;round=1;elapsed=0;bullets=[];invuln=0;
+  hp=maxHp;round=1;elapsed=0;bullets=[];invuln=0;finalLoops=0;
   roundNumEl.textContent=1;timeNumEl.textContent=0;renderHp();
   battleOverlay.classList.remove('show');
   playBgMusic();
