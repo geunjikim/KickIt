@@ -47,7 +47,7 @@ body{background:#1a2e10;min-height:100vh;min-height:100dvh;display:flex;align-it
 .ptrack{width:230px;height:2px;background:rgba(180,240,100,0.12);border-radius:1px;overflow:hidden;}
 .pfill{height:100%;width:0%;background:linear-gradient(90deg,#5aaa20,#b4f040,#dcff90);border-radius:1px;}
 .btnrow{position:relative;z-index:3;display:flex;justify-content:center;gap:12px;padding:12px 20px 20px;min-height:52px;}
-.go-btn{display:none;font-family:'Cinzel',serif;font-size:11px;letter-spacing:0.25em;color:#1a2e10;background:linear-gradient(135deg,#b4f040,#dcff90);border:none;border-radius:22px;padding:12px 28px;cursor:pointer;transition:all 0.3s;-webkit-tap-highlight-color:transparent;}
+.go-btn{display:none;font-family:'Cinzel',serif;font-size:11px;letter-spacing:0.04em;color:#1a2e10;background:linear-gradient(135deg,#b4f040,#dcff90);border:none;border-radius:22px;padding:12px 24px;cursor:pointer;transition:all 0.3s;-webkit-tap-highlight-color:transparent;white-space:nowrap;}
 .go-btn:hover{box-shadow:0 0 28px rgba(180,240,100,0.7);transform:scale(1.05);}
 .go-btn.show{display:inline-block;}
 #fov{position:absolute;inset:0;pointer-events:none;z-index:6;border-radius:14px;opacity:0;transition:opacity 0.5s;}
@@ -180,7 +180,7 @@ body{background:#1a2e10;min-height:100vh;min-height:100dvh;display:flex;align-it
   <div class="ptrack"><div class="pfill" id="pfill"></div></div>
 </div>
 <div class="btnrow">
-  <button id="go-btn" class="go-btn" onclick="kickIt()">KICK IT! ✦</button>
+  <button id="go-btn" class="go-btn" onclick="kickIt()">공격을 피하세요!</button>
 </div>
 <div id="fov"></div>
 </div>
@@ -257,6 +257,16 @@ const befL=document.getElementById('bef-l'),befR=document.getElementById('bef-r'
 const aftL=document.getElementById('aft-l'),aftR=document.getElementById('aft-r');
 const pfill=document.getElementById('pfill'),plbl=document.getElementById('plbl');
 const fov=document.getElementById('fov');
+const BACK_ICON_SVG='<svg viewBox="0 0 8 8" width="18" height="18" style="image-rendering:pixelated;display:block" xmlns="http://www.w3.org/2000/svg">'
+  +'<rect x="4" y="0" width="1" height="1" fill="currentColor"/>'
+  +'<rect x="3" y="1" width="2" height="1" fill="currentColor"/>'
+  +'<rect x="2" y="2" width="3" height="1" fill="currentColor"/>'
+  +'<rect x="1" y="3" width="4" height="1" fill="currentColor"/>'
+  +'<rect x="1" y="4" width="4" height="1" fill="currentColor"/>'
+  +'<rect x="2" y="5" width="3" height="1" fill="currentColor"/>'
+  +'<rect x="3" y="6" width="2" height="1" fill="currentColor"/>'
+  +'<rect x="4" y="7" width="1" height="1" fill="currentColor"/>'
+  +'</svg>';
 const bicon=document.getElementById('bicon'),bhint=document.getElementById('bhint');
 const bhintTop=document.getElementById('bhint-top');
 const goBtn=document.getElementById('go-btn'),tbtn=document.getElementById('tbtn');
@@ -363,7 +373,7 @@ function doTransform(){
     if(t===72){fov.style.background='rgba(180,240,100,0.2)';fov.style.opacity='1';setTimeout(()=>fov.style.opacity='0',350);}
     if(t>=90){
       pfill.style.width='100%';plbl.textContent='✦ GODDESS POWER ✦';plbl.style.color='rgba(180,240,100,0.95)';
-      bicon.textContent='↩';bhint.textContent='뒤로가기';bhintTop.textContent='변신 완료!';
+      bicon.innerHTML=BACK_ICON_SVG;bhint.textContent='뒤로가기';bhintTop.textContent='변신 완료!';
       tbtn.classList.add('rev');goBtn.classList.add('show');transformed=true;busy=false;return;
     }
     requestAnimationFrame(step);
@@ -653,17 +663,24 @@ function spawnArrow(){
   const cfg=STAGE_CONFIG[getStage()];
   const dir=Math.random()<0.5?1:-1;
   const baseY=14+Math.random()*(BH-28);
+  const y1=Math.min(Math.max(baseY+(Math.random()-0.5)*BH*0.3,10),BH-10);
   /* 호의 방향을 위/아래 랜덤으로 — 항상 위로만 휘면 바닥 구석이 영원히 안전지대가 됨.
-     20% 확률로는 호 없이 그 줄을 그대로 직선으로 가로질러 구석도 직접 위협함. */
+     20% 확률로는 호 없이 그 줄을 그대로 직선으로 가로질러 구석도 직접 위협함.
+     호의 높이는 spawn 시점에 남는 공간만큼만 허용해서, 비행 중에 잘리며 꺾이는(물결치는) 일 없이 항상 깨끗한 포물선 하나로만 그려지게 함. */
   const straight=Math.random()<0.2;
   const arcDir=Math.random()<0.5?1:-1;
-  const peak=straight?0:(28+Math.random()*38)*cfg.sizeMul*arcDir;
+  let peak=0;
+  if(!straight){
+    const want=(28+Math.random()*38)*cfg.sizeMul;
+    const room=arcDir>0?Math.min(baseY,y1)-6:(BH-6)-Math.max(baseY,y1);
+    peak=Math.max(0,Math.min(want,room))*arcDir;
+  }
   const dur=Math.max(0.42,1.25/cfg.speedMul);
   const r=5*cfg.sizeMul;
   bullets.push({
     kind:'arrow',
     x0:dir>0?-12:BW+12, y0:baseY,
-    x1:dir>0?BW+12:-12, y1:Math.min(Math.max(baseY+(Math.random()-0.5)*BH*0.3,10),BH-10),
+    x1:dir>0?BW+12:-12, y1,
     peak,dur,t:0,r,rot:0,x:0,y:0
   });
 }
@@ -725,7 +742,7 @@ function update(dt,now){
       b.t+=dt/b.dur;
       const tt=Math.min(b.t,1);
       b.x=b.x0+(b.x1-b.x0)*tt;
-      b.y=Math.min(Math.max(b.y0+(b.y1-b.y0)*tt-b.peak*4*tt*(1-tt),6),BH-6);
+      b.y=b.y0+(b.y1-b.y0)*tt-b.peak*4*tt*(1-tt);
       const dx=(b.x1-b.x0),dy=(b.y1-b.y0)-b.peak*4*(1-2*tt);
       b.rot=Math.atan2(dy,dx);
     } else if(b.kind==='poison'){
