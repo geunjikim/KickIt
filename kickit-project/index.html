@@ -47,7 +47,7 @@ body{background:#1a2e10;min-height:100vh;min-height:100dvh;display:flex;align-it
 .ptrack{width:230px;height:2px;background:rgba(180,240,100,0.12);border-radius:1px;overflow:hidden;}
 .pfill{height:100%;width:0%;background:linear-gradient(90deg,#5aaa20,#b4f040,#dcff90);border-radius:1px;}
 .btnrow{position:relative;z-index:3;display:flex;justify-content:center;gap:12px;padding:12px 20px 20px;min-height:52px;}
-.go-btn{display:none;font-family:'Cinzel',serif;font-size:11px;letter-spacing:0.04em;color:#1a2e10;background:linear-gradient(135deg,#b4f040,#dcff90);border:none;border-radius:22px;padding:12px 24px;cursor:pointer;transition:all 0.3s;-webkit-tap-highlight-color:transparent;white-space:nowrap;}
+.go-btn{display:none;font-family:'Cinzel',serif;font-size:11px;letter-spacing:0.2em;color:#1a2e10;background:linear-gradient(135deg,#b4f040,#dcff90);border:none;border-radius:22px;padding:12px 26px;cursor:pointer;transition:all 0.3s;-webkit-tap-highlight-color:transparent;white-space:nowrap;}
 .go-btn:hover{box-shadow:0 0 28px rgba(180,240,100,0.7);transform:scale(1.05);}
 .go-btn.show{display:inline-block;}
 #fov{position:absolute;inset:0;pointer-events:none;z-index:6;border-radius:14px;opacity:0;transition:opacity 0.5s;}
@@ -99,15 +99,12 @@ body{background:#1a2e10;min-height:100vh;min-height:100dvh;display:flex;align-it
 .retry-btn{font-family:'Press Start 2P',monospace;font-size:9px;letter-spacing:0.12em;color:#0e1a0a;background:linear-gradient(135deg,#b4f040,#dcff90);border:none;padding:12px 24px;cursor:pointer;-webkit-tap-highlight-color:transparent;border-radius:4px;}
 .retry-btn:active{transform:scale(0.95);}
 
-/* KICK IT 진입 인트로 카드 */
-.kickit-intro{position:absolute;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;pointer-events:none;background:rgba(6,12,5,0);opacity:0;}
+/* 진입 인트로 카드 */
+.kickit-intro{position:absolute;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;pointer-events:none;background:rgba(6,12,5,0);opacity:0;padding:0 20px;}
 .kickit-intro.show{animation:kiBgFlash 1.3s ease forwards;}
-.kickit-intro .ki-en{position:absolute;font-family:'Press Start 2P',monospace;font-weight:700;font-size:11vw;color:transparent;-webkit-text-stroke:1.5px rgba(180,240,100,0.55);letter-spacing:0.06em;white-space:nowrap;opacity:0;}
-.kickit-intro .ki-kr{position:relative;font-family:'Press Start 2P',monospace;font-size:18px;color:#dcff90;letter-spacing:0.1em;text-shadow:0 0 18px rgba(180,240,100,0.95),0 2px 0 #0e1a0a;opacity:0;white-space:nowrap;}
-.kickit-intro.show .ki-en{animation:kiEnFlash 1.3s ease forwards;}
-.kickit-intro.show .ki-kr{animation:kiKrPunch 1.3s ease forwards;}
+.kickit-intro .ki-en{font-family:'Press Start 2P',monospace;font-weight:700;font-size:6.4vw;color:#dcff90;letter-spacing:0.04em;text-shadow:0 0 18px rgba(180,240,100,0.95),0 2px 0 #0e1a0a;text-align:center;line-height:1.4;opacity:0;}
+.kickit-intro.show .ki-en{animation:kiKrPunch 1.3s ease forwards;}
 @keyframes kiBgFlash{0%{opacity:0;background:rgba(6,12,5,0);}6%{opacity:1;background:rgba(6,12,5,0.55);}80%{opacity:1;background:rgba(6,12,5,0.55);}100%{opacity:0;background:rgba(6,12,5,0);}}
-@keyframes kiEnFlash{0%{opacity:0;transform:scale(1.5);}14%{opacity:0.55;transform:scale(1);}78%{opacity:0.55;}100%{opacity:0;}}
 @keyframes kiKrPunch{0%{opacity:0;transform:scale(0.5) rotate(-3deg);}18%{opacity:1;transform:scale(1.12) rotate(1deg);}28%{transform:scale(1) rotate(0);}76%{opacity:1;}100%{opacity:0;transform:scale(0.92);}}
 
 /* back button */
@@ -180,7 +177,7 @@ body{background:#1a2e10;min-height:100vh;min-height:100dvh;display:flex;align-it
   <div class="ptrack"><div class="pfill" id="pfill"></div></div>
 </div>
 <div class="btnrow">
-  <button id="go-btn" class="go-btn" onclick="kickIt()">공격을 피하세요!</button>
+  <button id="go-btn" class="go-btn" onclick="kickIt()">Kick It!</button>
 </div>
 <div id="fov"></div>
 </div>
@@ -221,8 +218,7 @@ body{background:#1a2e10;min-height:100vh;min-height:100dvh;display:flex;align-it
       <button class="retry-btn" onclick="restartBattle()">다시하기</button>
     </div>
     <div class="kickit-intro" id="kickitIntro">
-      <span class="ki-en">KICK IT</span>
-      <span class="ki-kr">KICK IT!</span>
+      <span class="ki-en">DODGE THE ATTACKS!</span>
     </div>
   </div>
 </div>
@@ -617,7 +613,7 @@ function onBKeyUp(e){bKeys[e.key]=false;}
 const joyBase=document.getElementById('joyBase');
 const joyThumb=document.getElementById('joyThumb');
 let joyActive=false,joyDX=0,joyDY=0,joyBaseX=0,joyBaseY=0;
-const JOY_MAX=32;
+const JOY_MAX=20;
 function joyStart(e){
   joyActive=true;
   const rect=joyBase.getBoundingClientRect();
@@ -651,7 +647,7 @@ function applyBKeys(dt){
   if(bKeys['ArrowRight']||bKeys['d']||bKeys['D'])player.x+=spd;
   if(bKeys['ArrowUp']||bKeys['w']||bKeys['W'])player.y-=spd;
   if(bKeys['ArrowDown']||bKeys['s']||bKeys['S'])player.y+=spd;
-  if(joyDX||joyDY){player.x+=joyDX*spd;player.y+=joyDY*spd;}
+  if(joyDX||joyDY){player.x+=joyDX*spd*3.2;player.y+=joyDY*spd*3.2;}
   player.x=Math.min(Math.max(player.x,player.r+4),BW-player.r-4);
   player.y=Math.min(Math.max(player.y,player.r+4),BH-player.r-4);
 }
@@ -662,19 +658,14 @@ function spawnArrow(){
   playAttackFrames('hyun');
   const cfg=STAGE_CONFIG[getStage()];
   const dir=Math.random()<0.5?1:-1;
-  const baseY=14+Math.random()*(BH-28);
-  const y1=Math.min(Math.max(baseY+(Math.random()-0.5)*BH*0.3,10),BH-10);
+  const baseY=30+Math.random()*(BH-60);
+  const y1=Math.min(Math.max(baseY+(Math.random()-0.5)*BH*0.3,20),BH-20);
   /* 호의 방향을 위/아래 랜덤으로 — 항상 위로만 휘면 바닥 구석이 영원히 안전지대가 됨.
-     20% 확률로는 호 없이 그 줄을 그대로 직선으로 가로질러 구석도 직접 위협함.
-     호의 높이는 spawn 시점에 남는 공간만큼만 허용해서, 비행 중에 잘리며 꺾이는(물결치는) 일 없이 항상 깨끗한 포물선 하나로만 그려지게 함. */
-  const straight=Math.random()<0.2;
+     여유 공간을 넉넉히 줘서 항상 또렷한 포물선 하나로 그려지게 함 (가장자리 근처에서도 너무 평평해지지 않게). */
   const arcDir=Math.random()<0.5?1:-1;
-  let peak=0;
-  if(!straight){
-    const want=(28+Math.random()*38)*cfg.sizeMul;
-    const room=arcDir>0?Math.min(baseY,y1)-6:(BH-6)-Math.max(baseY,y1);
-    peak=Math.max(0,Math.min(want,room))*arcDir;
-  }
+  const want=(34+Math.random()*34)*cfg.sizeMul;
+  const room=arcDir>0?Math.min(baseY,y1)-10:(BH-10)-Math.max(baseY,y1);
+  const peak=Math.max(0,Math.min(want,room))*arcDir;
   const dur=Math.max(0.42,1.25/cfg.speedMul);
   const r=5*cfg.sizeMul;
   bullets.push({
