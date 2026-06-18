@@ -79,6 +79,13 @@ body{background:#1a2e10;min-height:100vh;min-height:100dvh;display:flex;align-it
 .attacker-name{font-size:9px;letter-spacing:0.22em;color:#b4f040;}
 
 .battle-wrap{position:relative;z-index:3;flex:1;display:flex;align-items:flex-start;justify-content:center;padding:4px 10px 10px;min-height:0;}
+
+.joystick-zone{display:none;position:relative;z-index:6;align-items:center;justify-content:center;padding:8px 0 16px;flex-shrink:0;}
+@media (hover:none) and (pointer:coarse){
+  .joystick-zone{display:flex;}
+}
+.joystick-base{position:relative;width:84px;height:84px;border-radius:50%;border:2px solid rgba(180,240,100,0.32);background:rgba(180,240,100,0.05);touch-action:none;}
+.joystick-thumb{position:absolute;top:50%;left:50%;width:34px;height:34px;margin:-17px;border-radius:50%;background:rgba(220,255,176,0.3);border:1.5px solid rgba(220,255,176,0.65);transition:transform 0.05s linear;}
 #battle-canvas{image-rendering:pixelated;border:3px solid #b4f040;box-shadow:0 0 22px rgba(180,240,100,0.3);background:#0a140a;touch-action:none;cursor:none;}
 @media(hover:none){#battle-canvas{cursor:auto;}}
 
@@ -201,6 +208,11 @@ body{background:#1a2e10;min-height:100vh;min-height:100dvh;display:flex;align-it
     </div>
     <div class="battle-wrap">
       <canvas id="battle-canvas"></canvas>
+    </div>
+    <div class="joystick-zone" id="joystickZone">
+      <div class="joystick-base" id="joyBase">
+        <div class="joystick-thumb" id="joyThumb"></div>
+      </div>
     </div>
     <div class="turn-banner" id="turnBanner"></div>
     <div class="battle-overlay" id="battleOverlay">
@@ -534,18 +546,18 @@ let BW=300,BH=210;
 let player={x:150,y:105,r:9};
 let bullets=[];
 let battleRaf=null,battleRunning=false;
-let hp=5,maxHp=5,round=1,elapsed=0,invuln=0;
+let hp=3,maxHp=3,round=1,elapsed=0,invuln=0;
 let finalLoops=0;
-const FINAL_STAGE_LOOPS=2; /* final stage를 몇 번 더 버티면 클리어인지 */
+const FINAL_STAGE_LOOPS=1; /* final stage를 몇 번 더 버티면 클리어인지 */
 let turn='hyun',phase='banner',phaseUntil=0,nextSpawnA=0,nextSpawnP=0;
 /* 난이도 6단계: stage1~5는 교대공격, stage6(final)은 둘 다 동시 공격 — 속도/크기/빈도가 단계마다 커짐 */
 const STAGE_CONFIG=[null,
   {speedMul:1.00,sizeMul:1.00,rateMul:1.00},
   {speedMul:1.15,sizeMul:1.06,rateMul:1.15},
   {speedMul:1.30,sizeMul:1.12,rateMul:1.30},
-  {speedMul:1.48,sizeMul:1.20,rateMul:1.48},
-  {speedMul:1.68,sizeMul:1.30,rateMul:1.68},
-  {speedMul:1.90,sizeMul:1.42,rateMul:1.95}
+  {speedMul:1.50,sizeMul:1.20,rateMul:1.50},
+  {speedMul:2.05,sizeMul:1.45,rateMul:2.15},
+  {speedMul:2.45,sizeMul:1.62,rateMul:2.65}
 ];
 function getStage(){return Math.min(round,6);}
 let bKeys={};
@@ -583,18 +595,53 @@ function renderHp(){
 function bPointerPos(e){const rect=battleCanvas.getBoundingClientRect();return{x:e.clientX-rect.left,y:e.clientY-rect.top};}
 function onBattlePointer(e){
   if(!battleRunning)return;
+  if(e.pointerType==='touch')return; /* 모바일은 하단 조이스틱으로 조작 — 손가락이 사과를 가리는 문제 방지 */
   const p=bPointerPos(e);
   player.x=Math.min(Math.max(p.x,player.r+4),BW-player.r-4);
   player.y=Math.min(Math.max(p.y,player.r+4),BH-player.r-4);
 }
 function onBKeyDown(e){bKeys[e.key]=true;}
 function onBKeyUp(e){bKeys[e.key]=false;}
+
+/* ── 하단 투명 조이스틱 (모바일) ── */
+const joyBase=document.getElementById('joyBase');
+const joyThumb=document.getElementById('joyThumb');
+let joyActive=false,joyDX=0,joyDY=0,joyBaseX=0,joyBaseY=0;
+const JOY_MAX=32;
+function joyStart(e){
+  joyActive=true;
+  const rect=joyBase.getBoundingClientRect();
+  joyBaseX=rect.left+rect.width/2;joyBaseY=rect.top+rect.height/2;
+  joyMove(e);
+  e.preventDefault();
+}
+function joyMove(e){
+  if(!joyActive)return;
+  const t=e.touches?e.touches[0]:e;
+  let dx=t.clientX-joyBaseX,dy=t.clientY-joyBaseY;
+  const dist=Math.hypot(dx,dy);
+  if(dist>JOY_MAX){dx=dx/dist*JOY_MAX;dy=dy/dist*JOY_MAX;}
+  joyThumb.style.transform=`translate(${dx}px,${dy}px)`;
+  joyDX=dx/JOY_MAX;joyDY=dy/JOY_MAX;
+  e.preventDefault();
+}
+function joyEnd(e){
+  joyActive=false;joyDX=0;joyDY=0;
+  joyThumb.style.transform='translate(0,0)';
+  if(e)e.preventDefault();
+}
+joyBase.addEventListener('touchstart',joyStart,{passive:false});
+joyBase.addEventListener('touchmove',joyMove,{passive:false});
+joyBase.addEventListener('touchend',joyEnd,{passive:false});
+joyBase.addEventListener('touchcancel',joyEnd,{passive:false});
+
 function applyBKeys(dt){
   const spd=170*dt;
   if(bKeys['ArrowLeft']||bKeys['a']||bKeys['A'])player.x-=spd;
   if(bKeys['ArrowRight']||bKeys['d']||bKeys['D'])player.x+=spd;
   if(bKeys['ArrowUp']||bKeys['w']||bKeys['W'])player.y-=spd;
   if(bKeys['ArrowDown']||bKeys['s']||bKeys['S'])player.y+=spd;
+  if(joyDX||joyDY){player.x+=joyDX*spd;player.y+=joyDY*spd;}
   player.x=Math.min(Math.max(player.x,player.r+4),BW-player.r-4);
   player.y=Math.min(Math.max(player.y,player.r+4),BH-player.r-4);
 }
@@ -606,7 +653,11 @@ function spawnArrow(){
   const cfg=STAGE_CONFIG[getStage()];
   const dir=Math.random()<0.5?1:-1;
   const baseY=14+Math.random()*(BH-28);
-  const peak=(28+Math.random()*38)*cfg.sizeMul;
+  /* 호의 방향을 위/아래 랜덤으로 — 항상 위로만 휘면 바닥 구석이 영원히 안전지대가 됨.
+     20% 확률로는 호 없이 그 줄을 그대로 직선으로 가로질러 구석도 직접 위협함. */
+  const straight=Math.random()<0.2;
+  const arcDir=Math.random()<0.5?1:-1;
+  const peak=straight?0:(28+Math.random()*38)*cfg.sizeMul*arcDir;
   const dur=Math.max(0.42,1.25/cfg.speedMul);
   const r=5*cfg.sizeMul;
   bullets.push({
@@ -620,7 +671,8 @@ function spawnArrow(){
 function spawnPoison(){
   playAttackFrames('dain');
   const cfg=STAGE_CONFIG[getStage()];
-  const x=24+Math.random()*(BW-48),y=24+Math.random()*(BH-48);
+  const m=Math.max(10,16-getStage());
+  const x=m+Math.random()*(BW-m*2),y=m+Math.random()*(BH-m*2);
   const maxR=(22+Math.random()*16)*cfg.sizeMul;
   bullets.push({kind:'poison',x,y,born:performance.now(),seedDur:0.32,coreDur:0.14,burstDur:0.5,maxR,fragsGenerated:false,frags:null});
 }
@@ -663,8 +715,8 @@ function nextPhase(now){
 function update(dt,now){
   if(phase==='attack'){
     const cfg=STAGE_CONFIG[getStage()];
-    const arrowRate=Math.max(260,650/cfg.rateMul);
-    const poisonRate=Math.max(340,820/cfg.rateMul);
+    const arrowRate=Math.max(190,650/cfg.rateMul);
+    const poisonRate=Math.max(260,820/cfg.rateMul);
     if((turn==='hyun'||turn==='dual')&&now>=nextSpawnA){spawnArrow();nextSpawnA=now+arrowRate;}
     if((turn==='dain'||turn==='dual')&&now>=nextSpawnP){spawnPoison();nextSpawnP=now+poisonRate;}
   }
@@ -673,7 +725,7 @@ function update(dt,now){
       b.t+=dt/b.dur;
       const tt=Math.min(b.t,1);
       b.x=b.x0+(b.x1-b.x0)*tt;
-      b.y=b.y0+(b.y1-b.y0)*tt-b.peak*4*tt*(1-tt);
+      b.y=Math.min(Math.max(b.y0+(b.y1-b.y0)*tt-b.peak*4*tt*(1-tt),6),BH-6);
       const dx=(b.x1-b.x0),dy=(b.y1-b.y0)-b.peak*4*(1-2*tt);
       b.rot=Math.atan2(dy,dx);
     } else if(b.kind==='poison'){
@@ -910,7 +962,7 @@ function stopBattle(){
   window.removeEventListener('keydown',onBKeyDown);
   window.removeEventListener('keyup',onBKeyUp);
   window.removeEventListener('resize',fitCanvas);
-  bullets=[];bKeys={};
+  bullets=[];bKeys={};joyEnd();
   turnBanner.classList.remove('show');
   const banner=document.getElementById('unlock-banner');
   banner.style.top='-56px';setTimeout(()=>banner.style.display='none',400);
