@@ -613,7 +613,7 @@ function onBKeyUp(e){bKeys[e.key]=false;}
 const joyBase=document.getElementById('joyBase');
 const joyThumb=document.getElementById('joyThumb');
 let joyActive=false,joyDX=0,joyDY=0,joyBaseX=0,joyBaseY=0;
-const JOY_MAX=20;
+const JOY_MAX=34;
 function joyStart(e){
   joyActive=true;
   const rect=joyBase.getBoundingClientRect();
@@ -647,7 +647,7 @@ function applyBKeys(dt){
   if(bKeys['ArrowRight']||bKeys['d']||bKeys['D'])player.x+=spd;
   if(bKeys['ArrowUp']||bKeys['w']||bKeys['W'])player.y-=spd;
   if(bKeys['ArrowDown']||bKeys['s']||bKeys['S'])player.y+=spd;
-  if(joyDX||joyDY){player.x+=joyDX*spd*3.2;player.y+=joyDY*spd*3.2;}
+  if(joyDX||joyDY){player.x+=joyDX*spd;player.y+=joyDY*spd;}
   player.x=Math.min(Math.max(player.x,player.r+4),BW-player.r-4);
   player.y=Math.min(Math.max(player.y,player.r+4),BH-player.r-4);
 }
@@ -660,9 +660,10 @@ function spawnArrow(){
   const dir=Math.random()<0.5?1:-1;
   const baseY=30+Math.random()*(BH-60);
   const y1=Math.min(Math.max(baseY+(Math.random()-0.5)*BH*0.3,20),BH-20);
-  /* 호의 방향을 위/아래 랜덤으로 — 항상 위로만 휘면 바닥 구석이 영원히 안전지대가 됨.
-     여유 공간을 넉넉히 줘서 항상 또렷한 포물선 하나로 그려지게 함 (가장자리 근처에서도 너무 평평해지지 않게). */
-  const arcDir=Math.random()<0.5?1:-1;
+  /* 호는 항상 박스 중앙 쪽으로 휘게 고정 — 매번 위/아래로 랜덤하게 뒤집히면
+     화살마다 곡선 방향이 들쭉날쭉해서 종이비행기처럼 펄럭이는 느낌이 남.
+     위쪽에서 출발하면 아래로, 아래쪽에서 출발하면 위로 — 한 발 한 발 또렷한 활시위 궤적 하나로 날아감. */
+  const arcDir=(baseY+y1)/2<BH/2?-1:1;
   const want=(34+Math.random()*34)*cfg.sizeMul;
   const room=arcDir>0?Math.min(baseY,y1)-10:(BH-10)-Math.max(baseY,y1);
   const peak=Math.max(0,Math.min(want,room))*arcDir;
@@ -845,10 +846,38 @@ function drawApple(ctx,x,y,r,flash){
   }
   ctx.restore();
 }
+function arrowXYAt(b,tt){
+  return{x:b.x0+(b.x1-b.x0)*tt,y:b.y0+(b.y1-b.y0)*tt-b.peak*4*tt*(1-tt)};
+}
+function drawArrowShape(ctx,r,alpha){
+  const L=r*3.6,headLen=r*1.25,headHalfW=r*0.62,shaftHalfW=r*0.16,finHalfW=r*0.55;
+  const tipX=L*0.5,headBackX=tipX-headLen,tailX=-L*0.5+r*0.7,tailTipX=-L*0.5;
+  ctx.globalAlpha=alpha;
+  ctx.fillStyle='#dcff90';
+  ctx.beginPath();
+  ctx.moveTo(tipX,0);
+  ctx.lineTo(headBackX,headHalfW);
+  ctx.lineTo(tailX,shaftHalfW);
+  ctx.lineTo(tailX,-shaftHalfW);
+  ctx.lineTo(headBackX,-headHalfW);
+  ctx.closePath();ctx.fill();
+  ctx.fillStyle='#7acc40';
+  ctx.beginPath();ctx.moveTo(tailX,shaftHalfW);ctx.lineTo(tailX,finHalfW);ctx.lineTo(tailTipX,0);ctx.closePath();ctx.fill();
+  ctx.beginPath();ctx.moveTo(tailX,-shaftHalfW);ctx.lineTo(tailX,-finHalfW);ctx.lineTo(tailTipX,0);ctx.closePath();ctx.fill();
+}
 function drawBullet(b,now){
   if(b.kind==='arrow'){
-    bctx.save();bctx.translate(b.x,b.y);bctx.rotate(b.rot);bctx.fillStyle='#b4f040';
-    bctx.beginPath();bctx.moveTo(b.r*1.8,0);bctx.lineTo(-b.r*1.1,b.r*0.8);bctx.lineTo(-b.r*0.5,0);bctx.lineTo(-b.r*1.1,-b.r*0.8);bctx.closePath();bctx.fill();
+    const tt=Math.min(b.t,1);
+    [0.1,0.06].forEach((back,i)=>{
+      const gt=tt-back;
+      if(gt<=0)return;
+      const p=arrowXYAt(b,gt);
+      bctx.save();bctx.translate(p.x,p.y);bctx.rotate(b.rot);
+      drawArrowShape(bctx,b.r,0.18+i*0.12);
+      bctx.restore();
+    });
+    bctx.save();bctx.translate(b.x,b.y);bctx.rotate(b.rot);
+    drawArrowShape(bctx,b.r,1);
     bctx.restore();
   } else {
     const el=(now-b.born)/1000;
