@@ -99,7 +99,14 @@ body{background:#1a2e10;min-height:100vh;min-height:100dvh;display:flex;align-it
 .retry-btn{font-family:'Press Start 2P',monospace;font-size:8px;letter-spacing:0.18em;color:rgba(180,240,100,0.85);background:rgba(14,26,10,0.55);border:1px solid rgba(180,240,100,0.35);padding:10px 20px;cursor:pointer;-webkit-tap-highlight-color:transparent;border-radius:3px;transition:background 0.2s,border-color 0.2s;}
 .retry-btn:active{background:rgba(180,240,100,0.12);border-color:rgba(180,240,100,0.65);}
 
-/* 비하인드컷 라이트박스 */
+/* 비하인드씬 크레딧 푸터 */
+.behind-credits{width:100%;border-top:1px solid rgba(180,240,100,0.15);margin-top:12px;padding:14px 4px 4px;display:flex;flex-direction:column;gap:5px;flex-shrink:0;}
+.credit-row{display:flex;align-items:baseline;gap:6px;font-family:'Press Start 2P',monospace;font-size:6px;letter-spacing:0.06em;line-height:1.8;}
+.credit-role{color:rgba(180,240,100,0.45);white-space:nowrap;}
+.credit-handles,.behind-credits a{color:rgba(220,255,144,0.8);text-decoration:none;}
+.behind-credits a:hover{color:#dcff90;text-decoration:underline;}
+
+/* 라이트박스 */
 .lightbox{position:fixed;inset:0;z-index:200;display:none;align-items:center;justify-content:center;background:rgba(4,6,4,0.97);}
 .lightbox.show{display:flex;}
 .lb-img{max-width:92vw;max-height:86vh;object-fit:contain;border-radius:4px;user-select:none;touch-action:none;}
@@ -258,6 +265,14 @@ body{background:#1a2e10;min-height:100vh;min-height:100dvh;display:flex;align-it
       <button class="lb-close" id="behindClose">✕</button>
       <div class="behind-header">✦ BEHIND THE SCENES ✦</div>
       <div class="behind-grid" id="behindGrid"></div>
+      <footer class="behind-credits">
+        <div class="credit-row"><span class="credit-role">Photographer</span><a href="https://instagram.com/lee_seeung" target="_blank" rel="noopener">@lee_seeung</a></div>
+        <div class="credit-row"><span class="credit-role">Director</span><a href="https://instagram.com/gimgumji" target="_blank" rel="noopener">@gimgumji</a></div>
+        <div class="credit-row"><span class="credit-role">Art Director</span><a href="https://instagram.com/bung_jin_" target="_blank" rel="noopener">@bung_jin_</a></div>
+        <div class="credit-row"><span class="credit-role">Stylist</span><a href="https://instagram.com/cup1d_stylist" target="_blank" rel="noopener">@cup1d_stylist</a></div>
+        <div class="credit-row"><span class="credit-role">Hair&amp;Makeup</span><a href="https://instagram.com/sieun_jung" target="_blank" rel="noopener">@sieun_jung</a></div>
+        <div class="credit-row"><span class="credit-role">Starring</span><span class="credit-handles"><a href="https://instagram.com/_gixb_eu" target="_blank" rel="noopener">@_gixb_eu</a> <a href="https://instagram.com/llllllyhllllll" target="_blank" rel="noopener">@llllllyhllllll</a></span></div>
+      </footer>
       <button class="retry-btn" style="margin-top:8px;flex-shrink:0;display:none;" onclick="restartBattle()" title="다시하기">Replay?</button>
     </div>
     <div class="lightbox" id="lightbox">
